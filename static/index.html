@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Daily Hacker News</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .story {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+
+        .story h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .story a {
+            color: #222;
+            text-decoration: none;
+        }
+
+        .story a:hover {
+            text-decoration: underline;
+        }
+
+        .meta {
+            color: #777;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: #b00020;
+            background: #ffeaea;
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>📰 Daily Hacker News</h1>
+
+    <div id="news">
+        Loading...
+    </div>
+
+    <script>
+        async function loadNews() {
+            const container = document.getElementById("news");
+
+            try {
+                const response = await fetch("/api/news");
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+                }
+
+                const data = await response.json();
+
+                console.log("API response:", data);
+
+                const stories = data.news;
+
+                if (!stories || stories.length === 0) {
+                    container.innerHTML = `
+                        <p>No news available.</p>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = stories.map(
+                    (story, index) => `
+                    <div class="story">
+
+                        <h2>
+                            ${index + 1}.
+                            <a
+                                href="${story.url}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                ${escapeHtml(story.title)}
+                            </a>
+                        </h2>
+
+                        <div class="meta">
+                            ⭐ ${story.score} points
+                            &nbsp;|&nbsp;
+                            👤 ${escapeHtml(story.by)}
+                            &nbsp;|&nbsp;
+
+                            <a
+                                href="${story.hn_url}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                💬 Comments
+                            </a>
+                        </div>
+
+                    </div>
+                    `
+                ).join("");
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to load news:",
+                    error
+                );
+
+                container.innerHTML = `
+                    <div class="error">
+                        Failed to load news.
+                        <br>
+                        ${escapeHtml(error.message)}
+                    </div>
+                `;
+            }
+        }
+
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        loadNews();
+    </script>
+
+</body>
+</html>

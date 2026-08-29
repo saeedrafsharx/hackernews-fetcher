@@ -1,0 +1,24 @@
+name: deploy-cloudiva
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: update-cloudiva
+        env:
+          CHABOKAN_TOKEN: ${{ secrets.CHABOKAN_TOKEN }}
+        run: |
+          npm install -g @cloudiva.net/cli
+          diva login -t "$CHABOKAN_TOKEN"
+          diva deploy -s hackernews-fastapi
