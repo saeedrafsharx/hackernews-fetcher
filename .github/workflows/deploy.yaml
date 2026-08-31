@@ -21,4 +21,4 @@ jobs:
         run: |
           npm install -g @cloudiva.net/cli
           diva login -t "$CHABOKAN_TOKEN"
-          diva deploy -s hackernews-fastapi
+          diva deploy -s fastapi-zridsw
